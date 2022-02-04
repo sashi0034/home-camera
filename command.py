@@ -2,9 +2,7 @@ from ast import arg
 from asyncio import constants
 from multiprocessing.dummy import Array
 import re
-import string
-from xmlrpc.client import boolean
-from main import post_mes, run_config, write_log
+import bot
 
 class Arg:
     def __init__(self, words) -> None:
@@ -21,12 +19,9 @@ class Arg:
 
 
 class ExeCmd:
-    def __init__(self) -> None:
-        pass
-    
+
     @staticmethod
     def input_command(mes: str):
-        #print("mes = "+mes)
         has_process: bool = False
         has_invalid_cmd: bool = False
         
@@ -34,7 +29,7 @@ class ExeCmd:
         if words==[]:
             return
         
-        write_log("message words", words)
+        bot.write_log("message words", words)
         
         argv = Arg(words)
 
@@ -49,6 +44,7 @@ class ExeCmd:
                     "stop": ExeCmd.Command.stop,
                     "start": ExeCmd.Command.start,
                     "interval": ExeCmd.Command.interval,
+                    "restart": ExeCmd.Command.restart,
                     
                 }
                 if (cmd in funcs):
@@ -57,15 +53,15 @@ class ExeCmd:
                         fn(argv)
                         has_process = True
                     except Exception as e:
-                        write_log("command error", e)
-                        post_mes("無効な引数があります")
+                        bot.write_log("command error", e)
+                        bot.post_mes("無効な引数があります")
                         has_process = True
                         break
                 else:
                     has_invalid_cmd = True
 
         if (has_invalid_cmd):
-            post_mes("無効なコマンドが存在しました")
+            bot.post_mes("無効なコマンドが存在しました")
 
         return has_process
     
@@ -75,7 +71,7 @@ class ExeCmd:
         @staticmethod
         def ping(argv: Arg) -> int:
             # print(argv)
-            post_mes("生きてます")
+            bot.post_mes("生きてます")
             return 0
 
         # @staticmethod
@@ -89,20 +85,31 @@ class ExeCmd:
 
         @staticmethod
         def stop(argv: Arg) -> int:
-            run_config.can_picture = False
-            post_mes(f"自動撮影を終了しました")
+            global run_config
+            bot.write_log("picture on stop", bot.run_config.can_picture)
+            bot.run_config.can_picture = False
+            bot.post_mes(f"自動撮影を終了しました")
             return 0
 
         @staticmethod
         def start(argv: Arg) -> int:
-            run_config.can_picture = True
-            post_mes(f"撮影再開しました")
+            global run_config
+            bot.run_config.can_picture = True
+            bot.post_mes(f"撮影再開しました")
             return 0
 
         @staticmethod
         def interval(argv: Arg) -> int:
+            global run_config
             time = int(argv.take_value())
-            run_config.shot_interval = time
-            post_mes(f"撮影間隔を ${time}分 に設定ました")
+            bot.run_config.shot_interval = time
+            bot.post_mes(f"撮影間隔を ${time}分 に設定ました")
             return 0
+        
+        @staticmethod
+        def restart(argv: Arg) -> int:
+            global run_config
+            bot.post_mes(f"プログラムを再起動します")
+            exit()
+
 
