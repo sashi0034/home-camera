@@ -87,7 +87,6 @@ class ExeCmd:
 
         @staticmethod
         def stop(argv: Arg) -> int:
-            global run_config
             bot.write_log("picture on stop", bot.run_config.can_picture)
             bot.run_config.can_picture = False
             bot.post_mes(f"自動撮影を終了しました")
@@ -95,17 +94,15 @@ class ExeCmd:
 
         @staticmethod
         def start(argv: Arg) -> int:
-            global run_config
             bot.run_config.can_picture = True
             bot.post_mes(f"撮影再開しました")
             return 0
 
         @staticmethod
         def interval(argv: Arg) -> int:
-            global run_config
             time = int(argv.take_value())
             bot.run_config.shot_interval = time
-            bot.post_mes(f"撮影間隔を ${time}秒 に設定ました")
+            bot.post_mes(f"撮影間隔を {time}秒 に設定ました")
             return 0
         
 

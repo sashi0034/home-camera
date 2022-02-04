@@ -6,7 +6,8 @@ import threading
 from slack_bolt import App
 
 from slack_sdk.web import client
-import cv2
+import subprocess
+from subprocess import PIPE
 import command
 import settings
 from runtime_config import Config
@@ -43,7 +44,7 @@ class Camera:
         self.buffer_time = 0
     
     def take_picture(self):
-        cap = cv2.VideoCapture(0) # /dev/video*
+        
         global run_config
         while True:
             time.sleep(10)
@@ -57,10 +58,9 @@ class Camera:
                 if (run_config.can_picture == False):
                     continue
                 
-                ret, frame = cap.read()
-                cv2.imwrite('temp.jpg', frame)
+                proc = subprocess.run("fswebcam temp.jpg", shell=True, stdout=PIPE, stderr=PIPE, text=True)
 
-                write_log("try upload file", ret)
+                write_log("try upload file", proc)
                 
                 res = app.client.files_upload(
                     channels=settings.POST_CHANNEL,
