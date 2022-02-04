@@ -1,7 +1,9 @@
 from ast import arg
 from asyncio import constants
+from distutils.log import error
 from multiprocessing.dummy import Array
 import re
+import sys
 import bot
 
 class Arg:
@@ -44,9 +46,9 @@ class ExeCmd:
                     "stop": ExeCmd.Command.stop,
                     "start": ExeCmd.Command.start,
                     "interval": ExeCmd.Command.interval,
-                    "restart": ExeCmd.Command.restart,
-                    
                 }
+
+                
                 if (cmd in funcs):
                     fn = funcs[cmd]
                     try:
@@ -54,7 +56,7 @@ class ExeCmd:
                         has_process = True
                     except Exception as e:
                         bot.write_log("command error", e)
-                        bot.post_mes("無効な引数があります")
+                        bot.post_mes("エラーが発生しました\n無効な引数がある可能性があります")
                         has_process = True
                         break
                 else:
@@ -103,13 +105,12 @@ class ExeCmd:
             global run_config
             time = int(argv.take_value())
             bot.run_config.shot_interval = time
-            bot.post_mes(f"撮影間隔を ${time}分 に設定ました")
+            bot.post_mes(f"撮影間隔を ${time}秒 に設定ました")
             return 0
         
-        @staticmethod
-        def restart(argv: Arg) -> int:
-            global run_config
-            bot.post_mes(f"プログラムを再起動します")
-            exit()
+
+            
+            
+            
 
 

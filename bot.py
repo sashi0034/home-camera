@@ -10,11 +10,12 @@ import cv2
 import command
 import settings
 from runtime_config import Config
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 
 # ボットトークンとソケットモードハンドラーを使ってアプリを初期化します
 app = App(token=settings.BOT_TOKEN)
-run_config = Config()
 
 
 # 初期指定チャンネルに投稿
@@ -45,8 +46,8 @@ class Camera:
         cap = cv2.VideoCapture(0) # /dev/video*
         global run_config
         while True:
-            time.sleep(1)
-            self.buffer_time += 1
+            time.sleep(10)
+            self.buffer_time += 10
             
             write_log("can take", run_config.can_picture)
             
@@ -94,6 +95,10 @@ def message_hello(message, say):
 
 
 
+run_config = Config()
+camera = Camera()
+thread_camera: threading.Thread = threading.Thread(target=camera.take_picture)
+thread_slack_event: threading.Thread = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
 
 
 

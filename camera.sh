@@ -6,9 +6,9 @@ echo ':sunglasses: 正常に起動しました :sunglasses:' > $INPUT
 
 while true
 do
-    python3 main.py < $INPUT > $OUTPUT 2>&1
+    python3 camera_main.py < $INPUT > $OUTPUT 2>&1
     cp $OUTPUT $INPUT
     echo ':sunglasses: エラーが発生しました :sunglasses:' >> $INPUT
-    sleep 3s
+    sleep 30m
 done
 
