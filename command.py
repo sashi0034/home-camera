@@ -4,7 +4,7 @@ from multiprocessing.dummy import Array
 import re
 import string
 from xmlrpc.client import boolean
-from main import post_mes, run_config
+from main import post_mes, run_config, write_log
 
 class Arg:
     def __init__(self, words) -> None:
@@ -34,7 +34,7 @@ class ExeCmd:
         if words==[]:
             return
         
-        print(words)
+        write_log("message words", words)
         
         argv = Arg(words)
 
@@ -57,7 +57,7 @@ class ExeCmd:
                         fn(argv)
                         has_process = True
                     except Exception as e:
-                        print(e)
+                        write_log("command error", e)
                         post_mes("無効な引数があります")
                         has_process = True
                         break

@@ -1,7 +1,9 @@
-import os
-from logging import Logger
-import requests
-import shutil
+from concurrent.futures import thread
+from logging import Logger, NullHandler
+import time
+import datetime
+import threading
+from typing_extensions import Self
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_sdk.web import client
@@ -14,6 +16,7 @@ from runtime_config import Config
 # ボットトークンとソケットモードハンドラーを使ってアプリを初期化します
 app = App(token=settings.BOT_TOKEN)
 run_config = Config()
+logger = Logger("main")
 
 
 @app.event("reaction_added")
@@ -30,23 +33,39 @@ def call_message(event, say):
     
     return
     
-    say("写真を送信します")
-    
-    cap = cv2.VideoCapture(0) # /dev/video*
-    ret, frame = cap.read()
-    cv2.imwrite('test.jpg', frame)
-
-    print("try upload file")
-    res = app.client.files_upload(
-        channels=settings.POST_CHANEL,
-        initial_comment="Here's my file :smile:",
-        file=f"./test.jpg",
-    )
 
     logger.info(res)
 
 
 
+class Camera:
+    def __init__(self) -> None:
+        self.buffer_time = 0
+    
+    def take_picture(self):
+        yield
+        while True:
+
+            self.buffer_time += 1
+            
+            if (self.buffer_time >= run_config.shot_interval):
+                self.buffer_time = 0
+                
+                cap = cv2.VideoCapture(0) # /dev/video*
+                ret, frame = cap.read()
+                cv2.imwrite('temp.jpg', frame)
+
+                print("try upload file")
+                res = app.client.files_upload(
+                    channels=settings.POST_CHANEL,
+                    #initial_comment="Here's my file :smile:",
+                    file=f"./temp.jpg",
+                )
+                
+            time.sleep(60)
+
+
+    
 
 
 
@@ -61,7 +80,11 @@ def post_mes(send: str):
 	)
 
 
-
+# ログを書く
+def write_log(tag, content):
+    print(f"[{tag}: {datetime.datetime.now()}]:\n{content}\n")
+    #logger.info(content)
+ 
 
 @app.message("hello")
 def message_hello(message, say):
@@ -72,6 +95,11 @@ def message_hello(message, say):
 
 # アプリを起動します
 if __name__ == "__main__":
+    
+    #camera = Camera()
+    #thr = threading.Thread(target=camera.take_picture())
+    #thr.start()
+    
     SocketModeHandler(app, settings.SLACK_APP_TOKEN).start()
 
 
