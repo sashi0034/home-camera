@@ -4,7 +4,7 @@ from multiprocessing.dummy import Array
 import re
 import string
 from xmlrpc.client import boolean
-from main import post_mes
+from main import post_mes, run_config
 
 class Arg:
     def __init__(self, words) -> None:
@@ -43,10 +43,13 @@ class ExeCmd:
 
                 cmd = argv.take_value()
 
-                def fn(a): return len(a)
+                def fn(a): return 0
                 funcs = {
                     "ping": ExeCmd.Command.ping,
-                    "plus": ExeCmd.Command.plus,
+                    "stop": ExeCmd.Command.stop,
+                    "start": ExeCmd.Command.start,
+                    "interval": ExeCmd.Command.interval,
+                    
                 }
                 if (cmd in funcs):
                     fn = funcs[cmd]
@@ -70,18 +73,36 @@ class ExeCmd:
 
     class Command:
         @staticmethod
-        def ping(argv: Arg):
+        def ping(argv: Arg) -> int:
             # print(argv)
-            post_mes("生きてるー!")
-            return 1
+            post_mes("生きてます")
+            return 0
+
+        # @staticmethod
+        # def plus(argv: Arg):
+        #     # print(argv)
+        #     a = int(argv.take_value())
+        #     b = int(argv.take_value())
+            
+        #     post_mes(f"{a}+{b}={str(a+b)}です")
+        #     return 1
 
         @staticmethod
-        def plus(argv: Arg):
-            # print(argv)
-            a = int(argv.take_value())
-            b = int(argv.take_value())
-            
-            post_mes(f"{a}+{b}={str(a+b)}です")
-            return 1
+        def stop(argv: Arg) -> int:
+            run_config.can_picture = False
+            post_mes(f"自動撮影を終了しました")
+            return 0
 
+        @staticmethod
+        def start(argv: Arg) -> int:
+            run_config.can_picture = True
+            post_mes(f"撮影再開しました")
+            return 0
+
+        @staticmethod
+        def interval(argv: Arg) -> int:
+            time = int(argv.take_value())
+            run_config.shot_interval = time
+            post_mes(f"撮影間隔を ${time}分 に設定ました")
+            return 0
 
