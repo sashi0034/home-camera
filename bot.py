@@ -59,14 +59,18 @@ class Camera:
                     continue
                 
                 proc = subprocess.run("fswebcam temp.jpg", shell=True, stdout=PIPE, stderr=PIPE, text=True)
-
                 write_log("try upload file", proc)
                 
-                res = app.client.files_upload(
-                    channels=settings.POST_CHANNEL,
-                    #initial_comment="Here's my file :smile:",
-                    file=f"./temp.jpg",
-                )
+                try:
+                    res = app.client.files_upload(
+                        channels=settings.POST_CHANNEL,
+                        #initial_comment="Here's my file :smile:",
+                        file=f"./temp.jpg",
+                    )
+                    #write_log("upload result", res)
+                except Exception as e:
+                    write_log("upload error", e)
+                    
                 
 
 
@@ -98,7 +102,7 @@ def message_hello(message, say):
 run_config = Config()
 camera = Camera()
 thread_camera: threading.Thread = threading.Thread(target=camera.take_picture)
-thread_slack_event: threading.Thread = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
+thread_slack_event: SocketModeHandler = SocketModeHandler(app, settings.SLACK_APP_TOKEN)
 
 
 

@@ -20,6 +20,15 @@ if __name__ == "__main__":
     
     bot.thread_camera.setDaemon(True)
     
+    bot.write_log("start now", "OK")
+    
     bot.thread_camera.start()
-    bot.thread_slack_event.start()
+    bot.thread_slack_event.connect()
+    
+    while True:
+        if bot.run_config.is_alive == False:
+            bot.write_log("main thread", "exit")
+            exit()
+
+
 

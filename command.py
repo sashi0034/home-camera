@@ -46,6 +46,7 @@ class ExeCmd:
                     "stop": ExeCmd.Command.stop,
                     "start": ExeCmd.Command.start,
                     "interval": ExeCmd.Command.interval,
+                    "kill": ExeCmd.Command.kill,
                 }
 
                 
@@ -105,6 +106,13 @@ class ExeCmd:
             bot.post_mes(f"撮影間隔を {time}秒 に設定ました")
             return 0
         
+        @staticmethod
+        def kill(argv: Arg) -> int:
+            bot.post_mes(f"プロセスを終了します")
+            bot.run_config.set_is_alive(False)
+            bot.write_log("kill command", bot.run_config.is_alive)
+            bot.thread_slack_event.close()
+            
 
             
             
