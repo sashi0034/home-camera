@@ -13,6 +13,7 @@ import settings
 from runtime_config import Config
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
+import math
 
 
 # ボットトークンとソケットモードハンドラーを使ってアプリを初期化します
@@ -77,7 +78,7 @@ class Camera:
 def start_message():
     f = open("log.in", "r")
     data = f.read()
-    post_mes(data)
+    post_mes(data[max([0, len(data)-4000]):])
     f.close
 
 
